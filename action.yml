@@ -1,14 +1,18 @@
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 name: "Automate Environment Deployment Approval"
 description: "Provide a description here"
+branding:
+  # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
+  icon: 'check-circle'
+  color: 'orange'
 author: "@activescott"
 inputs:
   environments_to_approve:
     required: true
-    description: The list of environments to automatically approve deploys for. Should be an array of strings.
+    description: The list of environments to automatically approve deploys for. Can be a comma-delimited list of strings.
   actors_to_approve:
     required: true
-    description: The list of users to automatically approve deploys for. Should be an array of strings.
+    description: The list of users to automatically approve deploys for. Can be a comma-delimited list of strings.
 
 runs:
   using: "node16"

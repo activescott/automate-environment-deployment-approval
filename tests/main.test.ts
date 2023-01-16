@@ -7,7 +7,8 @@ import { expect, test } from "@jest/globals"
 
 // shows how the runner will run a javascript action with env / stdout protocol
 test("test runs", () => {
-  process.env["INPUT_MILLISECONDS"] = "500"
+  process.env["INPUT_ENVIRONMENTS_TO_APPROVE"] = "prod"
+  process.env["INPUT_ACTORS_TO_APPROVE"] = "activescott"
   const np = process.execPath
   const ip = path.join(__dirname, "..", "lib", "main.js")
   const options: cp.ExecFileSyncOptions = {

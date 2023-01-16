@@ -13,6 +13,7 @@
     "lint-fix": "prettier --write \"{,!(node_modules)/**/}*.{ts,tsx,md,yml,json,html}\" && npm run eslint --fix",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
+    "pretest": "npm run -s build",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "repository": {
