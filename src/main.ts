@@ -1,18 +1,25 @@
-import * as core from '@actions/core'
-import {wait} from './wait'
+import * as core from "@actions/core"
+import { inspect } from "node:util"
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const environments_to_approve: any = core.getInput(
+      "environments_to_approve",
+      { required: true }
+    )
+    core.info(
+      `input environments_to_approve: ${inspect(environments_to_approve)}`
+    )
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    const actors_to_approve: any = core.getInput("actors_to_approve", {
+      required: true,
+    })
+    core.info(`input actors_to_approve: ${inspect(actors_to_approve)}`)
 
-    core.setOutput('time', new Date().toTimeString())
-  } catch (error) {
-    if (error instanceof Error) core.setFailed(error.message)
+    core.setOutput("time", new Date().toTimeString())
+  } catch (err) {
+    if (err instanceof Error) core.setFailed(err.message)
+    throw err
   }
 }
 

@@ -1,11 +1,15 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+# https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+name: "Automate Environment Deployment Approval"
+description: "Provide a description here"
+author: "@activescott"
 inputs:
-  milliseconds: # change this
+  environments_to_approve:
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: The list of environments to automatically approve deploys for. Should be an array of strings.
+  actors_to_approve:
+    required: true
+    description: The list of users to automatically approve deploys for. Should be an array of strings.
+
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
+  using: "node16"
+  main: "dist/index.js"

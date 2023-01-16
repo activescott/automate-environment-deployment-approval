@@ -1,5 +1,5 @@
 {
-  "name": "typescript-action",
+  "name": "automate-environment-deployment-approval",
   "version": "0.0.0",
   "private": true,
   "description": "TypeScript template action",
@@ -8,26 +8,32 @@
     "build": "tsc",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
-    "lint": "eslint src/**/*.ts",
+    "eslint": "eslint . --ext ts,tsx,js,jsx",
+    "lint": "prettier -l \"{,!(node_modules)/**/}*.{ts,tsx,md,yml,json,html}\" && npm run eslint",
+    "lint-fix": "prettier --write \"{,!(node_modules)/**/}*.{ts,tsx,md,yml,json,html}\" && npm run eslint --fix",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/activescott/automate-environment-deployment-approval"
   },
   "keywords": [
     "actions",
     "node",
-    "setup"
+    "setup",
+    "deployment",
+    "environment",
+    "approve"
   ],
-  "author": "",
+  "author": "Scott Willeke <scott@willeke.com>",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^1.10.0"
   },
   "devDependencies": {
+    "@activescott/eslint-config": "^2.3.6",
     "@types/node": "^18.11.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vercel/ncc": "^0.31.1",
