@@ -21,5 +21,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          environments_to_approve: 'aws,gcp'
-          actors_to_approve: 'activescott'
+          environments_to_approve: |
+            aws
+            gcp
+          actors_to_approve: |
+            activescott

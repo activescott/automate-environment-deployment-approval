@@ -31,10 +31,13 @@
   "author": "Scott Willeke <scott@willeke.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.0"
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "octokit": "^2.0.11"
   },
   "devDependencies": {
     "@activescott/eslint-config": "^2.3.6",
+    "@octokit/types": "^8.1.1",
     "@types/node": "^18.11.0",
     "@typescript-eslint/parser": "^4.33.0",
     "@vercel/ncc": "^0.31.1",

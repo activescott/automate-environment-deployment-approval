@@ -9,10 +9,10 @@ author: "@activescott"
 inputs:
   environments_to_approve:
     required: true
-    description: The list of environments to automatically approve deploys for. Can be a comma-delimited list of strings.
+    description: The list of environments to automatically approve deploys for. Can be a newline-delimited list of strings.
   actors_to_approve:
     required: true
-    description: The list of users to automatically approve deploys for. Can be a comma-delimited list of strings.
+    description: The list of users to automatically approve deploys for. Can be a newline-delimited list of strings.
 
 runs:
   using: "node16"
