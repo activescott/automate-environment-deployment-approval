@@ -15,7 +15,8 @@
     "test": "jest",
     "watch": "./node_modules/.bin/watch 'npm run test' './src' --wait=3 --ignoreDotFiles",
     "pretest": "npm run -s build",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run lint && npm run package && npm test",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -47,6 +48,7 @@
     "eslint": "^7.32.0",
     "eslint-plugin-github": "^4.3.2",
     "eslint-plugin-jest": "^25.3.2",
+    "husky": "^8.0.3",
     "jest": "^27.2.5",
     "js-yaml": "^4.1.0",
     "prettier": "2.5.1",
