@@ -15,7 +15,7 @@ inputs:
     description: The list of users to automatically approve deploys for. Can be a newline-delimited list of strings.
   github_token:
     required: true
-    description: The github token with permissions to read and edit deployments (usually `${{ secrets.GITHUB_TOKEN }}`)
+    description: The github token with permissions to read and edit deployments (usually this is secrets.GITHUB_TOKEN)
 
 runs:
   using: "node16"

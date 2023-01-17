@@ -21,8 +21,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          environments_to_approve: |
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          environment_allow_list: |
             aws
             gcp
-          actors_to_approve: |
+          actor_allow_list: |
             activescott
