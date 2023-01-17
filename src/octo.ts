@@ -9,6 +9,7 @@ import { components } from "@octokit/openapi-types"
 import { Endpoints, RequestParameters } from "@octokit/types"
 import * as core from "@actions/core"
 import { ArrayElement } from "./utilityTypes"
+import { inspect } from "node:util"
 
 export interface Octo {
   getWaitingWorkflowRuns(repo: Repo): Promise<GetWorkflowRunsResponse>
@@ -23,6 +24,8 @@ export interface Octo {
   ): Promise<
     Endpoints["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"]["response"]
   >
+  /** Returns the details about the currently authenticated user */
+  currentUser(): Promise<PartialUser>
 }
 
 export type PendingDeploymentsResponse =
@@ -54,7 +57,7 @@ export type WorkflowRun = ArrayElement<WorkflowRunArray>
 export type PartialWorkflowRun = Pick<WorkflowRun, "display_title" | "id"> &
   HasActor
 
-type SimpleUser = components["schemas"]["simple-user"]
+export type SimpleUser = components["schemas"]["simple-user"]
 /** The limited set of user properties we require */
 export type PartialUser = Pick<SimpleUser, "login">
 
@@ -127,6 +130,20 @@ class OctoImpl implements Octo {
       `Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`
     )
     return resp
+  }
+
+  public async currentUser(): Promise<PartialUser> {
+    const FAIL_USER = {
+      login: "failed to get current user",
+    }
+    try {
+      const userResponse = await this.doRequest("GET /user", {})
+      if (userResponse.status === 200) return userResponse.data
+      else return FAIL_USER
+    } catch (err) {
+      core.error(`Failed to get current user: ${inspect(err)}`)
+      return FAIL_USER
+    }
   }
 
   private async dumpResponse(

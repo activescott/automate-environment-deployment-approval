@@ -78,6 +78,7 @@ async function filterDeploymentsToApprove(
       return null
     }
     const deploys = await octo.getPendingDeploymentsForRun(repo, run.id)
+    const currentUser = await octo.currentUser()
     const approvable = deploys.data.filter((deploy) => {
       if (!deploy.environment.name) {
         throw new Error("expected environment to have name")
@@ -96,7 +97,7 @@ async function filterDeploymentsToApprove(
       }
       if (!deploy.current_user_can_approve) {
         core.error(
-          `The current user does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`
+          `The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`
         )
         return false
       }

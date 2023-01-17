@@ -95,6 +95,7 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
                 return null;
             }
             const deploys = yield octo.getPendingDeploymentsForRun(repo, run.id);
+            const currentUser = yield octo.currentUser();
             const approvable = deploys.data.filter((deploy) => {
                 if (!deploy.environment.name) {
                     throw new Error("expected environment to have name");
@@ -104,7 +105,7 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.error(`The current user does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
+                    core.error(`The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
                     return false;
                 }
                 return true;
@@ -321,6 +322,7 @@ exports.createOcto = void 0;
 // https://github.com/octokit/core.js
 const promises_1 = __nccwpck_require__(3595);
 const core = __importStar(__nccwpck_require__(2186));
+const node_util_1 = __nccwpck_require__(9147);
 function createOcto(repo, kit) {
     return new OctoImpl(repo, kit);
 }
@@ -349,6 +351,24 @@ class OctoImpl {
             const resp = yield this.doRequest("POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", Object.assign(Object.assign({}, repo), { run_id: run.id, environment_ids: [environment.id], state: "approved", comment: "approved by approve-dependabot-deploys script" }));
             core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
             return resp;
+        });
+    }
+    currentUser() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const FAIL_USER = {
+                login: "failed to get current user",
+            };
+            try {
+                const userResponse = yield this.doRequest("GET /user", {});
+                if (userResponse.status === 200)
+                    return userResponse.data;
+                else
+                    return FAIL_USER;
+            }
+            catch (err) {
+                core.error(`Failed to get current user: ${(0, node_util_1.inspect)(err)}`);
+                return FAIL_USER;
+            }
         });
     }
     dumpResponse(method, pathAfterRepo, response) {
