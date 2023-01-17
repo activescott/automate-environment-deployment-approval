@@ -3,8 +3,8 @@ name: "Automate Environment Deployment Approval"
 description: "Provide a description here"
 branding:
   # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
-  icon: 'check-circle'
-  color: 'orange'
+  icon: "check-circle"
+  color: "orange"
 author: "@activescott"
 inputs:
   environments_to_approve:

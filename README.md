@@ -8,7 +8,31 @@ Use this action to automate approval of deployments to Github environments.
 
 ## Create an Workflow
 
-TODO
+```yaml
+name: Deployment Auto-Approver
+# using triggers for every deployment and allowed manually
+# docs on these triggers:
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+on: [deployment, workflow_dispatch]
+
+jobs:
+  auto_approve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto Approve Deploys
+        uses: activescott/automate-environment-deployment-approval@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          environment_allow_list:
+            ["your-environment-name", "your-other-environment-name"]
+          # e.g. "dependabot[bot]"
+          actor_allow_list:
+            [
+              "github-login-name-to-auto-approve",
+              "other-github-login-name-to-auto-approve",
+            ]
+```
 
 ## Development of this Action
 
@@ -16,27 +40,20 @@ TODO
 
 Install the dependencies
 
-```bash
-$ npm install
+```sh
+npm install
 ```
 
 Build the typescript and package it for distribution
 
-```bash
-$ npm run build && npm run package
+```sh
+npm run build && npm run package
 ```
 
 Run the tests :heavy_check_mark:
 
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
+```sh
+npm test
 ```
 
 ## Change action.yml
