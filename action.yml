@@ -15,7 +15,7 @@ inputs:
     description: The list of users to automatically approve deploys for. Can be a newline-delimited list of strings.
   github_token:
     required: true
-    description: The github token with permissions to read and edit deployments (usually this is secrets.GITHUB_TOKEN)
+    description: A personal access token (PAT) from a 'required reviewer' and must have the 'repo' scope.
 
 runs:
   using: "node16"

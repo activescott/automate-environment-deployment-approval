@@ -44,12 +44,13 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findAndApproveDeployments = void 0;
 const core = __importStar(__nccwpck_require__(2186));
-function findAndApproveDeployments(octo, repo, actors_to_approve, environments_to_approve) {
+const node_util_1 = __nccwpck_require__(9147);
+function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList) {
     var e_1, _a;
     return __awaiter(this, void 0, void 0, function* () {
         const waitingRunsResponse = yield octo.getWaitingWorkflowRuns(repo);
         const runs = validateRuns(waitingRunsResponse.data.workflow_runs);
-        const deploysToApprove = yield filterDeploymentsToApprove(runs, actors_to_approve, octo, repo, environments_to_approve);
+        const deploysToApprove = yield filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList);
         core.notice(`Found ${deploysToApprove.length} deploys that should be approved...`);
         try {
             for (var deploysToApprove_1 = __asyncValues(deploysToApprove), deploysToApprove_1_1; deploysToApprove_1_1 = yield deploysToApprove_1.next(), !deploysToApprove_1_1.done;) {
@@ -85,29 +86,25 @@ function validateRuns(rawRuns) {
     });
     return mapped;
 }
-function filterDeploymentsToApprove(runs, actors_to_approve, octo, repo, environments_to_approve) {
+function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList) {
     return __awaiter(this, void 0, void 0, function* () {
         const filteredDeployPromises = runs.map((run) => __awaiter(this, void 0, void 0, function* () {
             const actor = run.actor && run.actor.login;
-            if (!actors_to_approve.includes(actor)) {
-                core.warning(`Run ${run.id} is pending approval, but from an un-allowed actor: ${actor}`);
+            if (!actorAllowList.includes(actor)) {
+                core.warning(`Run '${run.display_title}' (${run.id}) has a deployment pending approval but the actor '${actor}' is not allowed. Allowed actors are '${(0, node_util_1.inspect)(actorAllowList)}' and are specified in the \`actor_allow_list\` input.`);
                 return null;
             }
-            core.info(`A run created by ${actor} is awaiting deployment: ${run.display_title}. Confirming that it is an expected environment and this user has permission to approve...`);
             const deploys = yield octo.getPendingDeploymentsForRun(repo, run.id);
-            if (!deploys || !deploys.data) {
-                throw new Error(`could not retrieve deployments for run '${run.display_title}' (${run.id})`);
-            }
             const approvable = deploys.data.filter((deploy) => {
                 if (!deploy.environment.name) {
                     throw new Error("expected environment to have name");
                 }
-                if (!environments_to_approve.includes(deploy.environment.name)) {
-                    core.warning(`Environment '${deploy.environment.name}' not approvable for run ${run.display_title}.`);
+                if (!environmentAllowList.includes(deploy.environment.name)) {
+                    core.warning(`Run '${run.display_title}' (${run.id}) has a deployment pending approval but it is not to an allowed environment: '${deploy.environment.name}'. Allowed environments are ${(0, node_util_1.inspect)(environmentAllowList)} and are specified in the \`environment_allow_list\` input.`);
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.error(`The current user does not have permission to approve deployment for environment '${deploy.environment.name}'.`);
+                    core.error(`The current user does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
                     return false;
                 }
                 return true;

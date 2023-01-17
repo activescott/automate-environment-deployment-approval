@@ -14,7 +14,6 @@ name: Deployment Auto-Approver
 # docs on these triggers:
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
-# https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow
 on: [deployment, workflow_dispatch]
 
 jobs:
@@ -24,14 +23,13 @@ jobs:
       - name: Auto Approve Deploys
         uses: activescott/automate-environment-deployment-approval@main
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
           environment_allow_list: |
-            your-environment-name
-            your-other-environment-name
+            aws
           # e.g. "dependabot[bot]"
           actor_allow_list: |
-            github-login-name-to-auto-approve
-            other-github-login-name-to-auto-approve
+            dependabot[bot]
+            activescott
 ```
 
 ## Development of this Action
