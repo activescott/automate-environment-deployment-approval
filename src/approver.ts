@@ -1,11 +1,12 @@
 import * as core from "@actions/core"
+import { inspect } from "node:util"
 import { Octo, PartialWorkflowRun, WorkflowRun } from "./octo"
 
 export async function findAndApproveDeployments(
   octo: Octo,
   repo: { owner: string; repo: string },
-  actors_to_approve: string[],
-  environments_to_approve: string[]
+  actorAllowList: string[],
+  environmentAllowList: string[]
 ): Promise<void> {
   const waitingRunsResponse = await octo.getWaitingWorkflowRuns(repo)
   const runs: PartialWorkflowRun[] = validateRuns(
@@ -13,10 +14,10 @@ export async function findAndApproveDeployments(
   )
   const deploysToApprove = await filterDeploymentsToApprove(
     runs,
-    actors_to_approve,
+    actorAllowList,
     octo,
     repo,
-    environments_to_approve
+    environmentAllowList
   )
   core.notice(
     `Found ${deploysToApprove.length} deploys that should be approved...`
@@ -59,36 +60,37 @@ function validateRuns(rawRuns: WorkflowRun[]): PartialWorkflowRun[] {
 
 async function filterDeploymentsToApprove(
   runs: PartialWorkflowRun[],
-  actors_to_approve: string[],
+  actorAllowList: string[],
   octo: Octo,
   repo: { owner: string; repo: string },
-  environments_to_approve: string[]
+  environmentAllowList: string[]
 ): Promise<DeployForApproval[]> {
   const filteredDeployPromises = runs.map(async (run) => {
     const actor = run.actor && run.actor.login
-    if (!actors_to_approve.includes(actor)) {
+    if (!actorAllowList.includes(actor)) {
       core.warning(
-        `Run ${run.id} is pending approval, but from an un-allowed actor: ${actor}`
+        `Run '${run.display_title}' (${
+          run.id
+        }) has a deployment pending approval but the actor '${actor}' is not allowed. Allowed actors are '${inspect(
+          actorAllowList
+        )}' and are specified in the \`actor_allow_list\` input.`
       )
       return null
     }
-
-    core.info(
-      `A run created by ${actor} is awaiting deployment: ${run.display_title}. Confirming that it is an expected environment and this user has permission to approve...`
-    )
     const deploys = await octo.getPendingDeploymentsForRun(repo, run.id)
-    if (!deploys || !deploys.data) {
-      throw new Error(
-        `could not retrieve deployments for run '${run.display_title}' (${run.id})`
-      )
-    }
     const approvable = deploys.data.filter((deploy) => {
       if (!deploy.environment.name) {
         throw new Error("expected environment to have name")
       }
-      if (!environments_to_approve.includes(deploy.environment.name)) {
+      if (!environmentAllowList.includes(deploy.environment.name)) {
         core.warning(
-          `Environment '${deploy.environment.name}' not approvable for run ${run.display_title}.`
+          `Run '${run.display_title}' (${
+            run.id
+          }) has a deployment pending approval but it is not to an allowed environment: '${
+            deploy.environment.name
+          }'. Allowed environments are ${inspect(
+            environmentAllowList
+          )} and are specified in the \`environment_allow_list\` input.`
         )
         return false
       }
