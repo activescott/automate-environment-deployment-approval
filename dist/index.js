@@ -350,7 +350,8 @@ class OctoImpl {
             };
             try {
                 const userResponse = yield this.doRequest("GET /user", {});
-                if (userResponse.status === 200)
+                const OK = 200;
+                if (userResponse.status === OK)
                     return userResponse.data;
                 else
                     return FAIL_USER;

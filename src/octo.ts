@@ -138,7 +138,8 @@ class OctoImpl implements Octo {
     }
     try {
       const userResponse = await this.doRequest("GET /user", {})
-      if (userResponse.status === 200) return userResponse.data
+      const OK = 200
+      if (userResponse.status === OK) return userResponse.data
       else return FAIL_USER
     } catch (err) {
       core.error(`Failed to get current user: ${inspect(err)}`)
