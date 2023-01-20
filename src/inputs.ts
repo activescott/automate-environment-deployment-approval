@@ -29,24 +29,6 @@ export function deleteInputValueInEnvironment<
   delete process.env[getEnvironmentNameForInput(inputName)]
 }
 
-export function getBooleanInput<
-  TInputName extends keyof typeof ActionInputNames
->(
-  inputName: TInputName,
-  isRequired: boolean = true,
-  defaultIfNotFound?: boolean
-): boolean {
-  // because the required option of getBooleanInput seems to be ignored
-  if (
-    !isRequired &&
-    !Reflect.has(process.env, getEnvironmentNameForInput(inputName)) &&
-    defaultIfNotFound !== undefined
-  ) {
-    return defaultIfNotFound
-  }
-  return core.getBooleanInput(inputName, { required: isRequired })
-}
-
 export function getMultilineInput<
   TInputName extends keyof typeof ActionInputNames
 >(inputName: TInputName, isRequired: boolean = true): string[] {

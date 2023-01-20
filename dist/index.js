@@ -165,7 +165,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getStringInput = exports.getMultilineInput = exports.getBooleanInput = exports.deleteInputValueInEnvironment = exports.setInputValueInEnvironment = exports.getEnvironmentNameForInput = exports.ActionInputNames = void 0;
+exports.getStringInput = exports.getMultilineInput = exports.deleteInputValueInEnvironment = exports.setInputValueInEnvironment = exports.getEnvironmentNameForInput = exports.ActionInputNames = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 exports.ActionInputNames = {
     environment_allow_list: "environment_allow_list",
@@ -189,16 +189,6 @@ function deleteInputValueInEnvironment(inputName) {
     delete process.env[getEnvironmentNameForInput(inputName)];
 }
 exports.deleteInputValueInEnvironment = deleteInputValueInEnvironment;
-function getBooleanInput(inputName, isRequired = true, defaultIfNotFound) {
-    // because the required option of getBooleanInput seems to be ignored
-    if (!isRequired &&
-        !Reflect.has(process.env, getEnvironmentNameForInput(inputName)) &&
-        defaultIfNotFound !== undefined) {
-        return defaultIfNotFound;
-    }
-    return core.getBooleanInput(inputName, { required: isRequired });
-}
-exports.getBooleanInput = getBooleanInput;
 function getMultilineInput(inputName, isRequired = true) {
     return core.getMultilineInput(inputName, { required: isRequired });
 }
@@ -346,7 +336,7 @@ class OctoImpl {
     }
     approveDeployment(repo, run, environment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const actor = run.actor ? run.actor : { login: "UNKNOWN" };
+            const actor = run.actor;
             core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
             const resp = yield this.doRequest("POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", Object.assign(Object.assign({}, repo), { run_id: run.id, environment_ids: [environment.id], state: "approved", comment: "approved by approve-dependabot-deploys script" }));
             core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
