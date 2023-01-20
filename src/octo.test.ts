@@ -2,7 +2,7 @@ import { createOcto, EnvironmentPartial } from "./octo"
 import { randomInteger } from "./numbers"
 import { createOctoKitStub, TestRepo } from "./testUtils"
 
-test("approveDeployment", async () => {
+test("approveDeployment should call octokit", async () => {
   const kitStub = createOctoKitStub()
   kitStub.request.resolves({
     headers: {},
@@ -29,6 +29,29 @@ test("approveDeployment", async () => {
   expect(calledWithOptions).toHaveProperty("run_id", testRun.id)
 })
 
-test.todo("getPendingDeploymentsForRun")
+test.todo("getPendingDeploymentsForRun should call kit")
 
-test.todo("getWaitingWorkflowRuns")
+test.todo("getWaitingWorkflowRuns should call kit")
+
+test("currentUser should call kit", async () => {
+  const kitStub = createOctoKitStub()
+  kitStub.request.resolves({
+    headers: {},
+    status: 200,
+    url: "foo",
+    // NOTE: incomplete, but we can get away with it...
+    data: { login: "foo" },
+  })
+  const octo = createOcto(TestRepo, kitStub)
+  const user = await octo.currentUser()
+  expect(user).toHaveProperty("login")
+  expect(kitStub.request.callCount).toEqual(1)
+})
+
+test("currentUser should gracefully handle failures", async () => {
+  const kitStub = createOctoKitStub()
+  kitStub.request.rejects()
+  const octo = createOcto(TestRepo, kitStub)
+  const user = await octo.currentUser()
+  expect(user).toHaveProperty("login")
+})

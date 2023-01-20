@@ -8,7 +8,9 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     "src/**/*.ts",
-    "!**/*.test.ts"
+    "!**/*.test.ts",
+    // because main.ts is tested out of process. See main.test.ts
+    "!src/main.ts",
   ],
   coverageReporters: ["lcov", "text"],
   verbose: true,

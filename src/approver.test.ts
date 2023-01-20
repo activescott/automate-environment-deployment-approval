@@ -15,17 +15,17 @@ import {
 /* eslint-disable no-magic-numbers,no-console */
 
 const TEST_CASES = [
-  [ActorsInTestData, EnvironmentsInTestData, 2],
-  [ActorsInTestData, EnvironmentsNotInTestData, 0],
-  [ActorsNotInTestData, EnvironmentsInTestData, 0],
-  [ActorsNotInTestData, EnvironmentsNotInTestData, 0],
+  [2, ActorsInTestData, EnvironmentsInTestData],
+  [0, ActorsInTestData, EnvironmentsNotInTestData],
+  [0, ActorsNotInTestData, EnvironmentsInTestData],
+  [0, ActorsNotInTestData, EnvironmentsNotInTestData],
 ]
 test.each(TEST_CASES)(
-  "should conditionally approve based on environment_allow_list and actor_allow_list",
+  "should approve %i deploys for actors '%s' and environments of '%s'",
   async (
+    expectedApprovalCount: number | string[],
     actorAllowList: number | string[],
-    environmentAllowList: number | string[],
-    expectedApprovalCount: number | string[]
+    environmentAllowList: number | string[]
   ) => {
     const kitStub = createOctoKitStub()
     const octo: Octo = createOcto(TestRepo, kitStub)

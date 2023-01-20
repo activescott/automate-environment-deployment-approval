@@ -111,7 +111,7 @@ class OctoImpl implements Octo {
   ): Promise<
     Endpoints["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"]["response"]
   > {
-    const actor: PartialUser = run.actor ? run.actor : { login: "UNKNOWN" }
+    const actor: PartialUser = run.actor
 
     core.info(
       `Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`
