@@ -1,10 +1,11 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm test && npm run build && npm run package
+# NOTE: that pre-test runs build too
+npm test && npm run package
 
 if [ "$(git diff --ignore-space-at-eol dist/ | wc -l)" -gt "0" ]; then
   echo "Detected uncommitted changes after build.  See status below:"
-  git diff
+  git diff --text dist/
   exit 1
 fi
