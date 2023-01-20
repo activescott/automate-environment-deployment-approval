@@ -105,14 +105,14 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.error(`The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
+                    core.warning(`The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
                     return false;
                 }
                 return true;
             });
             if (approvable.length > 0) {
                 const deploy = approvable[0];
-                core.info(`deploy for environment '${deploy.environment.name}' and run '${run.id}' will be approved...`);
+                core.info(`Deployment '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}' will be approved...`);
                 if (!deploy.environment.name) {
                     throw new Error("environment does not have name");
                 }
