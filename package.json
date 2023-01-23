@@ -45,7 +45,7 @@
     "@types/node": "^18.11.0",
     "@types/sinon": "^10.0.13",
     "@typescript-eslint/parser": "^4.33.0",
-    "@vercel/ncc": "^0.31.1",
+    "@vercel/ncc": "^0.36.0",
     "eslint": "^7.32.0",
     "husky": "^8.0.3",
     "jest": "^27.2.5",
