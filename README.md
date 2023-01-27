@@ -4,7 +4,14 @@
 
 # Automate Approval of Deployments to Github Environments
 
-Use this action to automate approval of deployments to Github environments.
+Use this action to automatically approve workflow jobs that reference an environment with a "Required reviewers" protection rule. The action has two settings:
+
+- `environment_allow_list` specifies which environments to automatically approve deployments to.
+- `actor_allow_list` specifies which users/actors triggering a deployment that should be automatically approved.
+
+An deployment must be both to an environment in the `environment_allow_list` AND from an actor in `actor_allow_list` or it will _not_ be automatically approved and instead will require manual review as described in [Github's Reviewing deployments](https://docs.github.com/en/actions/managing-workflow-runs/reviewing-deployments) help article.
+
+For more information on general use of Github Environments and using them for deployments in Github Actions see [Github's Using environments for deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) article.
 
 ## Create an Workflow
 
@@ -21,12 +28,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Auto Approve Deploys
-        uses: activescott/automate-environment-deployment-approval@main
+        # you can use any @vNN tag from https://github.com/activescott/automate-environment-deployment-approval/releases for release notes
+        uses: activescott/automate-environment-deployment-approval@v1
         with:
           github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
           environment_allow_list: |
             aws
-          # e.g. "dependabot[bot]"
+          # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"
           actor_allow_list: |
             dependabot[bot]
             activescott
@@ -54,67 +62,15 @@ Run the tests :heavy_check_mark:
 npm test
 ```
 
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
 See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
 
-## Publish to a distribution branch
+## Release Process (Deploying to NPM)
 
-Actions are run from GitHub repos so we will checkin the packed dist folder.
+We use [semantic-release](https://github.com/semantic-release/semantic-release) to consistently release [semver](https://semver.org/)-compatible versions. This project deploys to production as well as pre-release releases to Github. Each of the below branches correspond to the following release/pre-release status:
 
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
+| branch | release or pre-release |
+| ------ | ---------------------- |
+| main   | production             |
+| beta   | pre-release            |
 
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+To trigger a release use a Conventional Commit following [Angular Commit Message Conventions](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#-git-commit-guidelines) on one of the above branches.

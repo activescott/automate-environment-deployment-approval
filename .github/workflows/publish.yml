@@ -57,6 +57,9 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
     needs: check-dist
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
     # This repo has an Environment named "Github" that has a "Required Reviewers" protection rule on it. This pauses this step until a required reviewer approves it
     environment: Github
     steps:
@@ -67,10 +70,9 @@ jobs:
         with:
           node-version: 16
 
-      - name: publish to npm
+      - name: publish Github Releases
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm install
           # semantic-release config is in .releaserc

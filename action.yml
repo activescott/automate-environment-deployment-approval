@@ -1,6 +1,6 @@
 # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 name: "Automate Environment Deployment Approval"
-description: "Provide a description here"
+description: "Automatically approve a deployment to Github environment"
 branding:
   # https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions#branding
   icon: "check-circle"
