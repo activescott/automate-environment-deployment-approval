@@ -13,12 +13,11 @@ An deployment must be both to an environment in the `environment_allow_list` AND
 
 For more information on general use of Github Environments and using them for deployments in Github Actions see [Github's Using environments for deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment) article.
 
-## Create an Workflow
+## Using this Action: Create Workflow
 
 ```yaml
-name: Deployment Auto-Approver
-# using triggers for every deployment and allowed manually
-# docs on these triggers:
+# Using triggers for every deployment and "manually trigger"
+# Docs on these triggers:
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
 on: [deployment, workflow_dispatch]
@@ -26,6 +25,10 @@ on: [deployment, workflow_dispatch]
 jobs:
   auto_approve:
     runs-on: ubuntu-latest
+    permissions:
+      # I'm not 100% confident the minimal permissions needed. I'm kinda going off of https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions and https://docs.github.com/en/rest/overview/permissions-required-for-github-apps?apiVersion=2022-11-28 which don't spell it out for this specific need
+      actions: read
+      deployments: read
     steps:
       - name: Auto Approve Deploys
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
@@ -64,7 +67,7 @@ npm test
 
 See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
 
-## Release Process (Deploying to NPM)
+### Release Process (Deploying to NPM)
 
 We use [semantic-release](https://github.com/semantic-release/semantic-release) to consistently release [semver](https://semver.org/)-compatible versions. This project deploys to production as well as pre-release releases to Github. Each of the below branches correspond to the following release/pre-release status:
 

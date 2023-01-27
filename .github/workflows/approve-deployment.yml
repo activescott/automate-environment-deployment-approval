@@ -1,0 +1,25 @@
+# using triggers for every deployment and allowed manually
+# docs on these triggers:
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
+on: [deployment, workflow_dispatch]
+
+jobs:
+  auto_approve:
+    runs-on: ubuntu-latest
+    permissions:
+      # I'm not 100% confident the minimal permissions needed. I'm kinda going off of https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions and https://docs.github.com/en/rest/overview/permissions-required-for-github-apps?apiVersion=2022-11-28 which don't spell it out for this specific need
+      actions: read
+      deployments: read
+    steps:
+      - name: Auto Approve Deploys
+        # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
+        uses: activescott/automate-environment-deployment-approval@v1.0.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
+          environment_allow_list: |
+            Github
+          # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"
+          actor_allow_list: |
+            dependabot[bot]
+            activescott
