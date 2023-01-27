@@ -1,0 +1,19 @@
+on:
+  # when a PR is labeled we'll trigger this (dependabot always labels its PRs)
+  pull_request_target:
+    types: [labeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  enable-auto-merge:
+    runs-on: ubuntu-latest
+
+    # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
+    steps:
+      - uses: alexwilson/enable-github-automerge-action@f4f9509cc5024102ac8d52d1c1d2d8e194afbbb3
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"

@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+actionlint
+
 npm run lint
 
 # NOTE: that pre-test runs build too
