@@ -3,12 +3,11 @@
 # `index.js` is the code that will run.
 # For our project, we generate this file through a build process from other source files.
 # We need to make sure the checked-in `index.js` actually matches what we expect it to be.
-name: Check dist/
-
 on:
   push:
     branches:
       - main
+      - beta
     paths-ignore:
       - "**.md"
   pull_request:
@@ -51,3 +50,28 @@ jobs:
         with:
           name: dist
           path: dist/
+
+  # publish just publishes a release and a tag to Github based on conventional commits w/ semver
+  publish:
+    # we don't bother with semantic-release on PRs (it's config would also prevent any publishing)
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: check-dist
+    runs-on: ubuntu-latest
+    # This repo has an Environment named "Github" that has a "Required Reviewers" protection rule on it. This pauses this step until a required reviewer approves it
+    environment: Github
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3.6.0
+        with:
+          node-version: 16
+
+      - name: publish to npm
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm install
+          # semantic-release config is in .releaserc
+          npx semantic-release@17
