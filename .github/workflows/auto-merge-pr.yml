@@ -14,6 +14,6 @@ jobs:
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
     if: github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
     steps:
-      - uses: alexwilson/enable-github-automerge-action@f4f9509cc5024102ac8d52d1c1d2d8e194afbbb3
+      - uses: alexwilson/enable-github-automerge-action@6c135e46075c098c5e52de011bb8cab4522fec3f
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
