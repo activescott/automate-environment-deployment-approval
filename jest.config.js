@@ -1,9 +1,9 @@
 module.exports = {
   clearMocks: true,
-  moduleFileExtensions: ['js', 'ts'],
-  testMatch: ['**/*.test.ts'],
+  moduleFileExtensions: ["js", "ts"],
+  testMatch: ["**/*.test.ts"],
   transform: {
-    '^.+\\.ts$': 'ts-jest'
+    "^.+\\.ts$": "ts-jest",
   },
   collectCoverage: true,
   collectCoverageFrom: [
@@ -13,5 +13,11 @@ module.exports = {
     "!src/main.ts",
   ],
   coverageReporters: ["lcov", "text"],
+  coverageThreshold: {
+    global: {
+      statements: 85,
+      branches: 66,
+    },
+  },
   verbose: true,
 }
