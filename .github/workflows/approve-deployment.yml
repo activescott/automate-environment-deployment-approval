@@ -13,10 +13,9 @@ jobs:
       deployments: read
     steps:
       - name: Auto Approve Deploys
-        # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
-        uses: activescott/automate-environment-deployment-approval@v1.0.0
+        # you should use any @vN.N.N tag such as @v1.0.0 from https://github.com/activescott/automate-environment-deployment-approval/releases
+        uses: activescott/automate-environment-deployment-approval@main
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           environment_allow_list: |
             Github
           # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"

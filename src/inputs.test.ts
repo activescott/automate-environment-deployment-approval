@@ -12,7 +12,7 @@ describe("input", () => {
 
   test("setInputValueInEnvironment should set the environment", () => {
     const KEY_VALUE = "mykey" + randomInteger()
-    inputs.setInputValueInEnvironment("github_token", KEY_VALUE)
-    expect(process.env["INPUT_GITHUB_TOKEN"]).toEqual(KEY_VALUE)
+    inputs.setInputValueInEnvironment("environment_allow_list", KEY_VALUE)
+    expect(process.env["INPUT_ENVIRONMENT_ALLOW_LIST"]).toEqual(KEY_VALUE)
   })
 })

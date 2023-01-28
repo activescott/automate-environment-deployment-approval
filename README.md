@@ -34,7 +34,6 @@ jobs:
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
         uses: activescott/automate-environment-deployment-approval@v1.0.0
         with:
-          github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
           environment_allow_list: |
             aws
           # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"

@@ -97,7 +97,7 @@ async function filterDeploymentsToApprove(
       }
       if (!deploy.current_user_can_approve) {
         core.warning(
-          `The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`
+          `The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The GITHUB_TOKEN secret from the calling workflow determines the current user and it must be from a 'required reviewer' for the environment and must have the 'repo' scope.`
         )
         return false
       }

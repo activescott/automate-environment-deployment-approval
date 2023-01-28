@@ -13,7 +13,8 @@ test("basic main run", async () => {
   }
   env[getEnvironmentNameForInput("environment_allow_list")] = "prod\ndev"
   env[getEnvironmentNameForInput("actor_allow_list")] = "vanusha\nmisha"
-  env[getEnvironmentNameForInput("github_token")] = "not-an-actual-token"
+  // this is normally injected by github actions host into the environment for actions
+  env["GITHUB_TOKEN"] = "not-an-actual-token"
   env["GITHUB_REPOSITORY"] = "my-owner/my-repo"
   env["DEBUG_SKIP_ALL_REQUESTS"] = "1"
 

@@ -170,7 +170,6 @@ const core = __importStar(__nccwpck_require__(2186));
 exports.ActionInputNames = {
     environment_allow_list: "environment_allow_list",
     actor_allow_list: "actor_allow_list",
-    github_token: "github_token",
 };
 /**
  * Returns the environment variable name to use for the given input
@@ -248,7 +247,11 @@ function run() {
             core.info(`input environments_to_approve: ${(0, node_util_1.inspect)(environments_to_approve)}`);
             const actors_to_approve = (0, inputs_1.getMultilineInput)("actor_allow_list");
             core.info(`input actors_to_approve: ${(0, node_util_1.inspect)(actors_to_approve)}`);
-            const github_token = (0, inputs_1.getStringInput)("github_token");
+            const github_token = process.env["GITHUB_TOKEN"];
+            if (!github_token) {
+                // my understanding is that the environment should always be there: https://docs.github.com/en/actions/security-guides/automatic-token-authentication
+                throw new Error("The GITHUB_TOKEN environment variable was not found.");
+            }
             const repo = github.context.repo;
             const octo = (0, octo_1.createOcto)(repo, github.getOctokit(github_token));
             if (!Reflect.has(process.env, "DEBUG_SKIP_ALL_REQUESTS")) {

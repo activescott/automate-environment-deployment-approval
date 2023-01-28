@@ -3,7 +3,6 @@ import * as core from "@actions/core"
 export const ActionInputNames = {
   environment_allow_list: "environment_allow_list",
   actor_allow_list: "actor_allow_list",
-  github_token: "github_token",
 }
 
 /**
