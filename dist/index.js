@@ -63,7 +63,18 @@ function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowL
                     throw new Error("WorkflowRun has no actor");
                 }
                 const run = deploy.run;
-                yield octo.approveDeployment(repo, run, deploy.environment);
+                const actor = run.actor;
+                const environment = deploy.environment;
+                try {
+                    core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
+                    yield octo.approveDeployment(repo, run, deploy.environment);
+                    core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
+                }
+                catch (err) {
+                    const msg = `FAILED to approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}. The error was: ${err}`;
+                    core.error(msg);
+                    core.setFailed(msg);
+                }
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -105,8 +116,10 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.warning(`The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`);
-                    return false;
+                    core.warning(`The current user (${currentUser.login}) cannot approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. 
+The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.`);
+                    // This is likely to fail later, but we'll warn and continue and let it fail later potentially with more detailed error information
+                    return true;
                 }
                 return true;
             });
@@ -311,9 +324,7 @@ exports.createOcto = void 0;
 // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#status
 // https://github.com/octokit/core.js
 const promises_1 = __nccwpck_require__(3595);
-const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
-const node_util_1 = __nccwpck_require__(9147);
 function createOcto(repo, kit) {
     return new OctoImpl(repo, kit);
 }
@@ -337,17 +348,14 @@ class OctoImpl {
     }
     approveDeployment(repo, run, environment) {
         return __awaiter(this, void 0, void 0, function* () {
-            const actor = run.actor;
-            core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
             const resp = yield this.doRequest("POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", Object.assign(Object.assign({}, repo), { run_id: run.id, environment_ids: [environment.id], state: "approved", comment: "approved by approve-dependabot-deploys script" }));
-            core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
             return resp;
         });
     }
     currentUser() {
         return __awaiter(this, void 0, void 0, function* () {
             const FAIL_USER = {
-                login: "failed to get current user",
+                login: "<failed to get current user>",
             };
             try {
                 /*
@@ -357,7 +365,6 @@ class OctoImpl {
                 return { login: github.context.actor };
             }
             catch (err) {
-                core.error(`Failed to get current user: ${(0, node_util_1.inspect)(err)}`);
                 return FAIL_USER;
             }
         });

@@ -32,7 +32,21 @@ export async function findAndApproveDeployments(
       throw new Error("WorkflowRun has no actor")
     }
     const run = deploy.run as PartialWorkflowRun
-    await octo.approveDeployment(repo, run, deploy.environment)
+    const actor = run.actor
+    const environment = deploy.environment
+    try {
+      core.info(
+        `Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`
+      )
+      await octo.approveDeployment(repo, run, deploy.environment)
+      core.notice(
+        `Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`
+      )
+    } catch (err) {
+      const msg = `FAILED to approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}. The error was: ${err}`
+      core.error(msg)
+      core.setFailed(msg)
+    }
   }
 }
 
@@ -97,9 +111,11 @@ async function filterDeploymentsToApprove(
       }
       if (!deploy.current_user_can_approve) {
         core.warning(
-          `The current user (${currentUser.login}) does not have permission to approve deployment for Run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope.`
+          `The current user (${currentUser.login}) cannot approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. 
+The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.`
         )
-        return false
+        // This is likely to fail later, but we'll warn and continue and let it fail later potentially with more detailed error information
+        return true
       }
       return true
     })
