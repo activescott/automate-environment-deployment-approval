@@ -8,7 +8,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -46,40 +50,47 @@ exports.findAndApproveDeployments = void 0;
 const core = __importStar(__nccwpck_require__(2186));
 const node_util_1 = __nccwpck_require__(9147);
 function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList) {
-    var e_1, _a;
+    var _a, e_1, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         const waitingRunsResponse = yield octo.getWaitingWorkflowRuns(repo);
         const runs = validateRuns(waitingRunsResponse.data.workflow_runs);
         const deploysToApprove = yield filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList);
         core.notice(`Found ${deploysToApprove.length} deploys that should be approved...`);
         try {
-            for (var deploysToApprove_1 = __asyncValues(deploysToApprove), deploysToApprove_1_1; deploysToApprove_1_1 = yield deploysToApprove_1.next(), !deploysToApprove_1_1.done;) {
-                const deploy = deploysToApprove_1_1.value;
-                if (!deploy) {
-                    // this case is actually prevented with prior filtering, but tsc doesn't seem to get that :/
-                    throw Error("Unexpected null deploy");
-                }
-                if (!deploy.run.actor) {
-                    throw new Error("WorkflowRun has no actor");
-                }
-                const run = deploy.run;
-                const actor = run.actor;
-                const environment = deploy.environment;
+            for (var _d = true, deploysToApprove_1 = __asyncValues(deploysToApprove), deploysToApprove_1_1; deploysToApprove_1_1 = yield deploysToApprove_1.next(), _a = deploysToApprove_1_1.done, !_a;) {
+                _c = deploysToApprove_1_1.value;
+                _d = false;
                 try {
-                    core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
-                    yield octo.approveDeployment(repo, run, deploy.environment);
-                    core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
+                    const deploy = _c;
+                    if (!deploy) {
+                        // this case is actually prevented with prior filtering, but tsc doesn't seem to get that :/
+                        throw Error("Unexpected null deploy");
+                    }
+                    if (!deploy.run.actor) {
+                        throw new Error("WorkflowRun has no actor");
+                    }
+                    const run = deploy.run;
+                    const actor = run.actor;
+                    const environment = deploy.environment;
+                    try {
+                        core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
+                        yield octo.approveDeployment(repo, run, deploy.environment);
+                        core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
+                    }
+                    catch (err) {
+                        const msg = `Failed to approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The current user is '${yield octo.currentUser()}' and the error was: ${err}`;
+                        core.setFailed(msg);
+                    }
                 }
-                catch (err) {
-                    const msg = `Failed to approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The current user is '${yield octo.currentUser()}' and the error was: ${err}`;
-                    core.setFailed(msg);
+                finally {
+                    _d = true;
                 }
             }
         }
         catch (e_1_1) { e_1 = { error: e_1_1 }; }
         finally {
             try {
-                if (deploysToApprove_1_1 && !deploysToApprove_1_1.done && (_a = deploysToApprove_1.return)) yield _a.call(deploysToApprove_1);
+                if (!_d && !_a && (_b = deploysToApprove_1.return)) yield _b.call(deploysToApprove_1);
             }
             finally { if (e_1) throw e_1.error; }
         }
@@ -158,7 +169,11 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -219,7 +234,11 @@ exports.getStringInput = getStringInput;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -288,7 +307,11 @@ run();
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];

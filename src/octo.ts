@@ -160,7 +160,9 @@ class OctoImpl implements Octo {
 
   private async doRequest<TRoute extends keyof Endpoints>(
     route: TRoute,
-    options?: Endpoints[TRoute]["parameters"] & RequestParameters
+    options?: TRoute extends keyof Endpoints
+      ? Endpoints[TRoute]["parameters"] & RequestParameters
+      : RequestParameters
   ): OctoKitRequestResult<TRoute> {
     //TODO: figure out how to satisfy tsc on the options type below
     const result = await this.octokit.request(route, options)
