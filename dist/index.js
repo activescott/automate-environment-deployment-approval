@@ -71,8 +71,7 @@ function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowL
                     core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
                 }
                 catch (err) {
-                    const msg = `FAILED to approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}. The error was: ${err}`;
-                    core.error(msg);
+                    const msg = `Failed to approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The current user is '${yield octo.currentUser()}' and the error was: ${err}`;
                     core.setFailed(msg);
                 }
             }
@@ -116,10 +115,9 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.warning(`The current user (${currentUser.login}) cannot approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. 
-The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.`);
-                    // This is likely to fail later, but we'll warn and continue and let it fail later potentially with more detailed error information
-                    return true;
+                    core.warning(`The current user (${currentUser.login}) cannot approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.`);
+                    // This WILL fail later if we allow it to continue and doesn't have any better error information (only 'HttpError: Validation Failed')
+                    return false;
                 }
                 return true;
             });
