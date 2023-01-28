@@ -13,7 +13,7 @@
     "lint-fix": "prettier --write \"{,!(node_modules)/**/}*.{ts,tsx,md,yml,json,html}\" && npm run eslint --fix",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
-    "watch": "./node_modules/.bin/watch 'npm run test' './src' --wait=2 --ignoreDotFiles",
+    "watch": "./node_modules/.bin/watch 'npm run test' './src' --wait=1 --ignoreDotFiles",
     "all": "npm run build && npm run format && npm run lint && npm run package && npm test",
     "prepare": "husky install"
   },
