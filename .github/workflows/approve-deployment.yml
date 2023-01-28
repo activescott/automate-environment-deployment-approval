@@ -7,20 +7,12 @@ on: [deployment, workflow_dispatch]
 jobs:
   auto_approve:
     runs-on: ubuntu-latest
-    permissions:
-      # `actions:read` is needed for:
-      # - `GET /repos/{owner}/{repo}/actions/runs` according to https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository
-      # - `GET /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments` according to https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-pending-deployments-for-a-workflow-run
-      # `deployments:read` is needed (?) for `POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments`? Docs for that endpoint only talk about the "repo scope" which isn't applicable to Github Actions workflow permissions (https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#review-pending-deployments-for-a-workflow-run)
-      # https://docs.github.com/en/rest/overview/permissions-required-for-github-apps
-      # TODO: remove write-all and figure out what minimal set works (see history of this file for what doesn't!)
-      write-all
     steps:
       - name: Auto Approve Deploys
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
         uses: activescott/automate-environment-deployment-approval@main
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
           environment_allow_list: |
             Github
           # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"

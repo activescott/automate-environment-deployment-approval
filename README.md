@@ -15,9 +15,34 @@ For more information on general use of Github Environments and using them for de
 
 ## Using this Action: Create Workflow
 
+### 1. Create a Personal Access Token
+
+In order to Approve a protected environment as a required reviewer you must use a **personal access token** created at https://github.com/settings/developers. The default `GITHUB_TOKEN` in Github Actions does not have sufficient permissions. The user who issues the token must be a _Required Reviewer_ for the _Environment protection rule_ as described [here](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#environment-protection-rules).
+
+#### Token Permissions Permissions
+
+For _classic tokens_ it requires the "repo" scope. You'll need the following permissions if you're using a _fine-grained access token_:
+
+- **Actions: Read-only**:
+- **Deployments: Read-only**
+
+For reference, below are the endpoints used and what permissions are needed are in Github's fine-grained tokens [here](https://docs.github.com/en/rest/overview/permissions-required-for-fine-grained-personal-access-tokens?apiVersion=2022-11-28#actions) reference.
+
+- [`GET /repos/{owner}/{repo}/actions/runs`](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#list-workflow-runs-for-a-repository)
+- [`GET /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments`](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#get-pending-deployments-for-a-workflow-run)
+- [`POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments` endpoint](https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#review-pending-deployments-for-a-workflow-run)
+
+I [tried using](https://github.com/activescott/automate-environment-deployment-approval/blob/a03dc166eb88bb1a6ebb2c3c1bf435d661cf9fdf/.github/workflows/approve-deployment.yml) `${{ secrets.GITHUB_TOKEN }}` with `permissions: write-all` in a Github Actions workflow to avoid using a PAT but still got errors when attempting the approval.
+
+### 2. Add Token to Repository Secrets
+
+Go to `https://github.com/{owner}/{repo}/settings/secrets/actions` for your repo and create a new **Repository Secret** and put the Personal Access Token from above there. In the example workflow below I used the name `GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS` for the secret.
+
+### 3. Create Workflow
+
 ```yaml
-# Using triggers for every deployment and "manually trigger"
-# Docs on these triggers:
+# using triggers for every deployment and allowed manually
+# docs on these triggers:
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
 on: [deployment, workflow_dispatch]
@@ -25,18 +50,15 @@ on: [deployment, workflow_dispatch]
 jobs:
   auto_approve:
     runs-on: ubuntu-latest
-    permissions:
-      # I'm not 100% confident the minimal permissions needed. I'm kinda going off of https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions and https://docs.github.com/en/rest/overview/permissions-required-for-github-apps?apiVersion=2022-11-28 which don't spell it out for this specific need
-      actions: read
-      deployments: read
     steps:
       - name: Auto Approve Deploys
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
-        uses: activescott/automate-environment-deployment-approval@v1.0.0
+        uses: activescott/automate-environment-deployment-approval@main
         with:
           github_token: ${{ secrets.GH_TOKEN_FOR_AUTO_APPROVING_DEPLOYS }}
           environment_allow_list: |
-            aws
+            aws-test
+            aws-prod
           # the below automatically approves dependabot and anything submitted by the Github user with login "activescott"
           actor_allow_list: |
             dependabot[bot]
