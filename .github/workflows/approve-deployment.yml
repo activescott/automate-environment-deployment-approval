@@ -14,7 +14,7 @@ jobs:
       # `deployments:read` is needed (?) for `POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments`? Docs for that endpoint only talk about the "repo scope" which isn't applicable to Github Actions workflow permissions (https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2022-11-28#review-pending-deployments-for-a-workflow-run)
       # https://docs.github.com/en/rest/overview/permissions-required-for-github-apps
       actions: read
-      deployments: read
+      deployments: write
     steps:
       - name: Auto Approve Deploys
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
