@@ -9,6 +9,8 @@ on: # rebuild any PRs and main branch changes
 jobs:
   build: # make sure build/ci work properly
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
     steps:
       - uses: actions/checkout@v3
       - run: |
@@ -22,8 +24,9 @@ jobs:
       - uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # this is just to exercise the code we don't want it to actually approve anything so we give it invalid environments/actors
           environment_allow_list: |
-            aws
-            gcp
+            does-not-exist-one
+            does-not-exist-two
           actor_allow_list: |
-            activescott
+            non-existing-actor
