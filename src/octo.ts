@@ -7,10 +7,8 @@ import { writeFile, mkdir } from "node:fs/promises"
 import { Octokit } from "octokit"
 import { components } from "@octokit/openapi-types"
 import { Endpoints, RequestParameters } from "@octokit/types"
-import * as core from "@actions/core"
 import * as github from "@actions/github"
 import { ArrayElement } from "./utilityTypes"
-import { inspect } from "node:util"
 
 export interface Octo {
   getWaitingWorkflowRuns(repo: Repo): Promise<GetWorkflowRunsResponse>
@@ -112,11 +110,6 @@ class OctoImpl implements Octo {
   ): Promise<
     Endpoints["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"]["response"]
   > {
-    const actor: PartialUser = run.actor
-
-    core.info(
-      `Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`
-    )
     const resp = await this.doRequest(
       "POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments",
       {
@@ -127,15 +120,12 @@ class OctoImpl implements Octo {
         comment: "approved by approve-dependabot-deploys script",
       }
     )
-    core.notice(
-      `Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`
-    )
     return resp
   }
 
   public async currentUser(): Promise<PartialUser> {
     const FAIL_USER = {
-      login: "failed to get current user",
+      login: "<failed to get current user>",
     }
     try {
       /*
@@ -144,7 +134,6 @@ class OctoImpl implements Octo {
        */
       return { login: github.context.actor }
     } catch (err) {
-      core.error(`Failed to get current user: ${inspect(err)}`)
       return FAIL_USER
     }
   }
