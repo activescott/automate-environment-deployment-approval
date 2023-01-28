@@ -15,6 +15,7 @@ jobs:
       # https://docs.github.com/en/rest/overview/permissions-required-for-github-apps
       actions: read
       deployments: write
+      contents: write
     steps:
       - name: Auto Approve Deploys
         # you can use any @vN.N.N tag from https://github.com/activescott/automate-environment-deployment-approval/releases
