@@ -312,6 +312,7 @@ exports.createOcto = void 0;
 // https://github.com/octokit/core.js
 const promises_1 = __nccwpck_require__(3595);
 const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
 const node_util_1 = __nccwpck_require__(9147);
 function createOcto(repo, kit) {
     return new OctoImpl(repo, kit);
@@ -349,12 +350,11 @@ class OctoImpl {
                 login: "failed to get current user",
             };
             try {
-                const userResponse = yield this.doRequest("GET /user", {});
-                const OK = 200;
-                if (userResponse.status === OK)
-                    return userResponse.data;
-                else
-                    return FAIL_USER;
+                /*
+                 * NOTE: from github.actor context docs workflow runs always use the permissions of github.actor even if it is re-run.
+                 * When re-run the github.triggering_actor will indicate who triggered it, but the permissions are still from github.actor
+                 */
+                return { login: github.context.actor };
             }
             catch (err) {
                 core.error(`Failed to get current user: ${(0, node_util_1.inspect)(err)}`);
@@ -367,12 +367,13 @@ class OctoImpl {
             if (process.env.NODE_ENV === "production") {
                 return;
             }
+            const responseData = (yield response) || "";
             pathAfterRepo = pathAfterRepo.startsWith("/")
                 ? pathAfterRepo
                 : "/" + pathAfterRepo;
             pathAfterRepo = pathAfterRepo.replace(/\//g, "-");
             yield (0, promises_1.mkdir)("./responses", { recursive: true });
-            yield (0, promises_1.writeFile)(`./responses/${method}--repos-${pathAfterRepo}.json`, JSON.stringify(yield response, null, "  "));
+            yield (0, promises_1.writeFile)(`./responses/${method}--repos-${pathAfterRepo}.json`, JSON.stringify(responseData, null, "  "));
         });
     }
     doRequest(route, options) {

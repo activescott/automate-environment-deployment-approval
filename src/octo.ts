@@ -8,6 +8,7 @@ import { Octokit } from "octokit"
 import { components } from "@octokit/openapi-types"
 import { Endpoints, RequestParameters } from "@octokit/types"
 import * as core from "@actions/core"
+import * as github from "@actions/github"
 import { ArrayElement } from "./utilityTypes"
 import { inspect } from "node:util"
 
@@ -137,10 +138,11 @@ class OctoImpl implements Octo {
       login: "failed to get current user",
     }
     try {
-      const userResponse = await this.doRequest("GET /user", {})
-      const OK = 200
-      if (userResponse.status === OK) return userResponse.data
-      else return FAIL_USER
+      /*
+       * NOTE: from github.actor context docs workflow runs always use the permissions of github.actor even if it is re-run.
+       * When re-run the github.triggering_actor will indicate who triggered it, but the permissions are still from github.actor
+       */
+      return { login: github.context.actor }
     } catch (err) {
       core.error(`Failed to get current user: ${inspect(err)}`)
       return FAIL_USER
@@ -155,6 +157,7 @@ class OctoImpl implements Octo {
     if (process.env.NODE_ENV === "production") {
       return
     }
+    const responseData = (await response) || ""
     pathAfterRepo = pathAfterRepo.startsWith("/")
       ? pathAfterRepo
       : "/" + pathAfterRepo
@@ -162,7 +165,7 @@ class OctoImpl implements Octo {
     await mkdir("./responses", { recursive: true })
     await writeFile(
       `./responses/${method}--repos-${pathAfterRepo}.json`,
-      JSON.stringify(await response, null, "  ")
+      JSON.stringify(responseData, null, "  ")
     )
   }
 
