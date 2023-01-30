@@ -406,7 +406,6 @@ class OctoImpl {
     }
     doRequest(route, options) {
         return __awaiter(this, void 0, void 0, function* () {
-            //TODO: figure out how to satisfy tsc on the options type below
             const result = yield this.octokit.request(route, options);
             const MAX_PARTS = 2;
             const [method, fullPath] = route.split(" ", MAX_PARTS);

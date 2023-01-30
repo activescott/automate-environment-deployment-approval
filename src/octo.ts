@@ -164,7 +164,6 @@ class OctoImpl implements Octo {
       ? Endpoints[TRoute]["parameters"] & RequestParameters
       : RequestParameters
   ): OctoKitRequestResult<TRoute> {
-    //TODO: figure out how to satisfy tsc on the options type below
     const result = await this.octokit.request(route, options)
     const MAX_PARTS = 2
     const [method, fullPath] = route.split(" ", MAX_PARTS)
