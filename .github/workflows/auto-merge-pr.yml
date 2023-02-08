@@ -1,4 +1,3 @@
-name: Auto-Merge
 on:
   pull_request_target:
     types: [labeled]
@@ -7,7 +6,10 @@ jobs:
   enable-auto-merge:
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      # NOTE: `pull-requests: write` wasn't enough with default permissions for actions being read-only on a FORK pull request (dependabot's PRs are considered PRs from forked repos)
+      # See https://github.com/alexwilson/enable-github-automerge-action/issues/276
+      # pull-requests: write
+      permissions: write-all
 
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
     if: github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
@@ -15,3 +17,4 @@ jobs:
       - uses: alexwilson/enable-github-automerge-action@f4f9509cc5024102ac8d52d1c1d2d8e194afbbb3
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
+          merge-method: REBASE
