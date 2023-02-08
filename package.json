@@ -33,7 +33,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "octokit": "^2.0.11"
+    "octokit": "^2.0.14"
   },
   "devDependencies": {
     "@activescott/eslint-config": "^2.3.6",
