@@ -9,7 +9,7 @@ jobs:
       # NOTE: `pull-requests: write` wasn't enough with default permissions for actions being read-only on a FORK pull request (dependabot's PRs are considered PRs from forked repos)
       # See https://github.com/alexwilson/enable-github-automerge-action/issues/276
       # pull-requests: write
-      permissions: write-all
+      write-all
 
     # Specifically check that dependabot (or another trusted party) created this pull-request, and that it has been labelled correctly.
     if: github.event.pull_request.user.login == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'dependencies')
