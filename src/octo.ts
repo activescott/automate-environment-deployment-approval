@@ -80,10 +80,17 @@ class OctoImpl implements Octo {
   public async getWaitingWorkflowRuns(
     repo: Repo
   ): Promise<GetWorkflowRunsResponse> {
-    const runs = this.doRequest("GET /repos/{owner}/{repo}/actions/runs", {
-      ...repo,
-      status: "waiting",
-    })
+    const runs = await this.doRequest(
+      "GET /repos/{owner}/{repo}/actions/runs",
+      {
+        ...repo,
+      }
+    )
+    // NOTE: you can pass status=waiting above but github doesn't always return a workflow run that has status waiting so we manually filter them here:
+    runs.data.workflow_runs = runs.data.workflow_runs.filter(
+      (run) => run.status === "waiting"
+    )
+    runs.data.total_count = runs.data.workflow_runs.length
     return runs
   }
 

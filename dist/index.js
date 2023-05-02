@@ -47,15 +47,18 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.findAndApproveDeployments = void 0;
-const core = __importStar(__nccwpck_require__(2186));
 const node_util_1 = __nccwpck_require__(7261);
+const trace = __importStar(__nccwpck_require__(1118));
+const core_1 = __nccwpck_require__(2186);
 function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList) {
     var _a, e_1, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
+        trace.debug("Fetching runs for repo:", repo);
         const waitingRunsResponse = yield octo.getWaitingWorkflowRuns(repo);
+        trace.debug("Found %s waiting runs as follows: ", waitingRunsResponse.data.total_count, waitingRunsResponse.data.workflow_runs.map((run) => run.display_title));
         const runs = validateRuns(waitingRunsResponse.data.workflow_runs);
         const deploysToApprove = yield filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList);
-        core.notice(`Found ${deploysToApprove.length} deploys that should be approved...`);
+        trace.notice("Found %d deploys that should be approved...", deploysToApprove.length);
         try {
             for (var _d = true, deploysToApprove_1 = __asyncValues(deploysToApprove), deploysToApprove_1_1; deploysToApprove_1_1 = yield deploysToApprove_1.next(), _a = deploysToApprove_1_1.done, !_a;) {
                 _c = deploysToApprove_1_1.value;
@@ -73,13 +76,13 @@ function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowL
                     const actor = run.actor;
                     const environment = deploy.environment;
                     try {
-                        core.info(`Approving deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}...`);
+                        trace.info("Approving deployment to %s triggered by %s for run %s...", environment.name, actor.login, run.display_title);
                         yield octo.approveDeployment(repo, run, deploy.environment);
-                        core.notice(`Approved deployment to ${environment.name} triggered by ${actor.login} for run ${run.display_title}.`);
+                        trace.notice("Approved deployment to %s triggered by %s for run %s.", environment.name, actor.login, run.display_title);
                     }
                     catch (err) {
                         const msg = `Failed to approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The current user is '${yield octo.currentUser()}' and the error was: ${err}`;
-                        core.setFailed(msg);
+                        (0, core_1.setFailed)(msg);
                     }
                 }
                 finally {
@@ -109,24 +112,27 @@ function validateRuns(rawRuns) {
 }
 function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList) {
     return __awaiter(this, void 0, void 0, function* () {
+        trace.debug("Filtering the following workflow runs:", runs.map((run) => `#${run.id}: ${run.display_title}}`));
         const filteredDeployPromises = runs.map((run) => __awaiter(this, void 0, void 0, function* () {
             const actor = run.actor && run.actor.login;
             if (!actorAllowList.includes(actor)) {
-                core.warning(`Run '${run.display_title}' (${run.id}) has a deployment pending approval but the actor '${actor}' is not allowed. Allowed actors are '${(0, node_util_1.inspect)(actorAllowList)}' and are specified in the \`actor_allow_list\` input.`);
+                trace.warning("Run '%s (%s)' has a deployment pending approval but the actor '%s' is not allowed. Allowed actors are '%O' and are specified in the `actor_allow_list` input.", run.display_title, run.id, actor, actorAllowList);
                 return null;
             }
             const deploys = yield octo.getPendingDeploymentsForRun(repo, run.id);
+            trace.debug("Found the following deploys for workflow run: " +
+                (0, node_util_1.inspect)(deploys.data.map((deploy) => deploy.environment.name)));
             const currentUser = yield octo.currentUser();
             const approvable = deploys.data.filter((deploy) => {
                 if (!deploy.environment.name) {
                     throw new Error("expected environment to have name");
                 }
                 if (!environmentAllowList.includes(deploy.environment.name)) {
-                    core.warning(`Run '${run.display_title}' (${run.id}) has a deployment pending approval but it is not to an allowed environment: '${deploy.environment.name}'. Allowed environments are ${(0, node_util_1.inspect)(environmentAllowList)} and are specified in the \`environment_allow_list\` input.`);
+                    trace.warning("Run '%s' (%s) has a deployment pending approval but it is not to an allowed environment: '%s'. Allowed environments are '%O' and are specified in the `environment_allow_list` input.", run.display_title, run.id, deploy.environment.name, environmentAllowList);
                     return false;
                 }
                 if (!deploy.current_user_can_approve) {
-                    core.warning(`The current user (${currentUser.login}) cannot approve deployment for run '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.`);
+                    trace.warning("The current user (%s) cannot approve deployment for run '%s' (%s) to environment '%s'. The github_token input determines the current user and it must be from a 'required reviewer' and must have the 'repo' scope. See https://github.com/activescott/automate-environment-deployment-approval#token-permissions-permissions for more information.", currentUser.login, run.display_title, run.id, deploy.environment.name);
                     // This WILL fail later if we allow it to continue and doesn't have any better error information (only 'HttpError: Validation Failed')
                     return false;
                 }
@@ -134,7 +140,7 @@ function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmen
             });
             if (approvable.length > 0) {
                 const deploy = approvable[0];
-                core.info(`Deployment '${run.display_title}' (${run.id}) to environment '${deploy.environment.name}' will be approved...`);
+                trace.info(`Deployment '%s' (%s) to environment '%s' will be approved...`, run.display_title, run.id, deploy.environment.name);
                 if (!deploy.environment.name) {
                     throw new Error("environment does not have name");
                 }
@@ -357,7 +363,10 @@ class OctoImpl {
     }
     getWaitingWorkflowRuns(repo) {
         return __awaiter(this, void 0, void 0, function* () {
-            const runs = this.doRequest("GET /repos/{owner}/{repo}/actions/runs", Object.assign(Object.assign({}, repo), { status: "waiting" }));
+            const runs = yield this.doRequest("GET /repos/{owner}/{repo}/actions/runs", Object.assign({}, repo));
+            // NOTE: you can pass status=waiting above but github doesn't always return a workflow run that has status waiting so we manually filter them here:
+            runs.data.workflow_runs = runs.data.workflow_runs.filter((run) => run.status === "waiting");
+            runs.data.total_count = runs.data.workflow_runs.length;
             return runs;
         });
     }
@@ -418,6 +427,60 @@ class OctoImpl {
     }
 }
 //# sourceMappingURL=octo.js.map
+
+/***/ }),
+
+/***/ 1118:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.warning = exports.info = exports.notice = exports.debug = void 0;
+const core = __importStar(__nccwpck_require__(2186));
+const node_util_1 = __nccwpck_require__(7261);
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const fmt = (message, ...args) => (0, node_util_1.formatWithOptions)({ compact: true, breakLength: 120 }, message, ...args);
+function debug(message, ...args) {
+    core.debug(fmt(message, ...args));
+}
+exports.debug = debug;
+function notice(message, ...args) {
+    core.notice(fmt(message, ...args));
+}
+exports.notice = notice;
+function info(message, ...args) {
+    core.info(fmt(message, ...args));
+}
+exports.info = info;
+function warning(message, ...args) {
+    core.warning(fmt(message, ...args));
+}
+exports.warning = warning;
+//# sourceMappingURL=trace.js.map
 
 /***/ }),
 
