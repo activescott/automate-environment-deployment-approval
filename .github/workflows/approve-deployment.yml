@@ -1,11 +1,18 @@
 # using triggers for every deployment and allowed manually
 # docs on these triggers:
-# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment_status
 # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
-on: [deployment, workflow_dispatch]
+on:
+  deployment_status:
+  workflow_dispatch:
 
 jobs:
   auto_approve:
+    if: |
+      github.event_name == 'workflow_dispatch' || (
+        github.event_name == 'deployment_status' &&
+        github.event.workflow_run.status == 'waiting'
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Auto Approve Deploys
