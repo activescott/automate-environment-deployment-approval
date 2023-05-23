@@ -6,7 +6,7 @@
 import { writeFile, mkdir } from "node:fs/promises"
 import { Octokit } from "octokit"
 import { components } from "@octokit/openapi-types"
-import { Endpoints, RequestParameters } from "@octokit/types"
+import { Endpoints, RequestParameters, Route } from "@octokit/types"
 import * as github from "@actions/github"
 import { ArrayElement } from "./utilityTypes"
 
@@ -40,10 +40,6 @@ export type Repo = {
 export function createOcto(repo: Repo, kit: OctoKitPartial): Octo {
   return new OctoImpl(repo, kit)
 }
-
-type OctoKitRequestResult<R extends keyof Endpoints> = Promise<
-  Endpoints[R]["response"]
->
 
 export type GetWorkflowRunsResponse =
   Endpoints["GET /repos/{owner}/{repo}/actions/runs"]["response"]
@@ -165,12 +161,10 @@ class OctoImpl implements Octo {
     )
   }
 
-  private async doRequest<TRoute extends keyof Endpoints>(
-    route: TRoute,
-    options?: TRoute extends keyof Endpoints
-      ? Endpoints[TRoute]["parameters"] & RequestParameters
-      : RequestParameters
-  ): OctoKitRequestResult<TRoute> {
+  private async doRequest<R extends Route & keyof Endpoints>(
+    route: keyof Endpoints | R,
+    options?: Endpoints[R]["parameters"] & RequestParameters
+  ): Promise<Endpoints[R]["response"]> {
     const result = await this.octokit.request(route, options)
     const MAX_PARTS = 2
     const [method, fullPath] = route.split(" ", MAX_PARTS)
@@ -178,6 +172,6 @@ class OctoImpl implements Octo {
       ? fullPath.substring("/repos/{owner}/{repo}/".length)
       : fullPath
     await this.dumpResponse(method, path, result)
-    return result
+    return result as Endpoints[R]["response"]
   }
 }
