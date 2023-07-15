@@ -4,7 +4,7 @@
 // https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#status
 // https://github.com/octokit/core.js
 import { writeFile, mkdir } from "node:fs/promises"
-import { Octokit } from "octokit"
+import { Octokit } from "@octokit/core"
 import { components } from "@octokit/openapi-types"
 import { Endpoints, RequestParameters, Route } from "@octokit/types"
 import * as github from "@actions/github"
