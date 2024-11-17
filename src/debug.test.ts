@@ -21,5 +21,5 @@ test.skip("debug serverless-aws-static-file-handler", async () => {
     repo,
     github.getOctokit(process.env.GITHUB_TOKEN)
   )
-  await findAndApproveDeployments(octo, repo, ["DONT APPROVE"], ["aws"])
+  await findAndApproveDeployments(octo, repo, ["DONT APPROVE"], ["aws"], [""])
 })
