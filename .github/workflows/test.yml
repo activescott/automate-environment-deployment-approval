@@ -29,3 +29,5 @@ jobs:
             does-not-exist-two
           actor_allow_list: |
             non-existing-actor
+          run_id_allow_list: |
+            non-existing-id

@@ -7,7 +7,8 @@ export async function findAndApproveDeployments(
   octo: Octo,
   repo: { owner: string; repo: string },
   actorAllowList: string[],
-  environmentAllowList: string[]
+  environmentAllowList: string[],
+  runIdAllowList: string[]
 ): Promise<void> {
   trace.debug("Fetching runs for repo:", repo)
   const waitingRunsResponse = await octo.getWaitingWorkflowRuns(repo)
@@ -24,7 +25,8 @@ export async function findAndApproveDeployments(
     actorAllowList,
     octo,
     repo,
-    environmentAllowList
+    environmentAllowList,
+    runIdAllowList
   )
   trace.notice(
     "Found %d deploys that should be approved...",
@@ -93,7 +95,8 @@ async function filterDeploymentsToApprove(
   actorAllowList: string[],
   octo: Octo,
   repo: { owner: string; repo: string },
-  environmentAllowList: string[]
+  environmentAllowList: string[],
+  runIdAllowList: string[]
 ): Promise<DeployForApproval[]> {
   trace.debug(
     "Filtering the following workflow runs:",
@@ -101,13 +104,26 @@ async function filterDeploymentsToApprove(
   )
   const filteredDeployPromises = runs.map(async (run) => {
     const actor = run.actor && run.actor.login
-    if (!actorAllowList.includes(actor)) {
+    if (actorAllowList.length > 0 && !actorAllowList.includes(actor)) {
       trace.warning(
         "Run '%s (%s)' has a deployment pending approval but the actor '%s' is not allowed. Allowed actors are '%O' and are specified in the `actor_allow_list` input.",
         run.display_title,
         run.id,
         actor,
         actorAllowList
+      )
+      return null
+    }
+    if (
+      runIdAllowList.length > 0 &&
+      !runIdAllowList.includes(run.id.toString())
+    ) {
+      trace.warning(
+        "Run '%s (%s)' has a deployment pending approval but the run ID '%s' is not allowed. Allowed run IDs are '%O' and are specified in the `run_id_allow_list` input.",
+        run.display_title,
+        run.id,
+        run.id,
+        runIdAllowList
       )
       return null
     }
