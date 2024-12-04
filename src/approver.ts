@@ -114,7 +114,10 @@ async function filterDeploymentsToApprove(
       )
       return null
     }
-    if (runIdAllowList.length > 0 && !runIdAllowList.includes(run.id.toString())) {
+    if (
+      runIdAllowList.length > 0 &&
+      !runIdAllowList.includes(run.id.toString())
+    ) {
       trace.warning(
         "Run '%s (%s)' has a deployment pending approval but the run ID '%s' is not allowed. Allowed run IDs are '%O' and are specified in the `run_id_allow_list` input.",
         run.display_title,

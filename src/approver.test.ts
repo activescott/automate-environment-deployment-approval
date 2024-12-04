@@ -16,7 +16,7 @@ import {
 
 const TEST_CASES = [
   [2, ActorsInTestData, EnvironmentsInTestData, []],
-  [0, ActorsInTestData, EnvironmentsNotInTestData, ["1234"] ],
+  [0, ActorsInTestData, EnvironmentsNotInTestData, ["1234"]],
   [0, ActorsNotInTestData, EnvironmentsInTestData, []],
   [0, ActorsNotInTestData, EnvironmentsNotInTestData, ["1234"]],
 ]

@@ -19,11 +19,10 @@ async function run(): Promise<void> {
     core.info(`input run_ids_to_approve: ${inspect(run_ids_to_approve)}`)
 
     // Check if at least one of the inputs is filled
-    if (
-      actors_to_approve.length === 0 &&
-      run_ids_to_approve.length === 0
-    ) {
-      throw new Error("At least one of the inputs must be provided: actor_allow_list or run_id_allow_list")
+    if (actors_to_approve.length === 0 && run_ids_to_approve.length === 0) {
+      throw new Error(
+        "At least one of the inputs must be provided: actor_allow_list or run_id_allow_list"
+      )
     }
 
     const github_token: string = getStringInput("github_token")
