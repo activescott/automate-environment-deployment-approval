@@ -50,14 +50,14 @@ exports.findAndApproveDeployments = void 0;
 const node_util_1 = __nccwpck_require__(7261);
 const trace = __importStar(__nccwpck_require__(1118));
 const core_1 = __nccwpck_require__(2186);
-function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList) {
+function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList, runIdAllowList) {
     var _a, e_1, _b, _c;
     return __awaiter(this, void 0, void 0, function* () {
         trace.debug("Fetching runs for repo:", repo);
         const waitingRunsResponse = yield octo.getWaitingWorkflowRuns(repo);
         trace.debug("Found %s waiting runs as follows: ", waitingRunsResponse.data.total_count, waitingRunsResponse.data.workflow_runs.map((run) => run.display_title));
         const runs = validateRuns(waitingRunsResponse.data.workflow_runs);
-        const deploysToApprove = yield filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList);
+        const deploysToApprove = yield filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList, runIdAllowList);
         trace.notice("Found %d deploys that should be approved...", deploysToApprove.length);
         try {
             for (var _d = true, deploysToApprove_1 = __asyncValues(deploysToApprove), deploysToApprove_1_1; deploysToApprove_1_1 = yield deploysToApprove_1.next(), _a = deploysToApprove_1_1.done, !_a;) {
@@ -110,13 +110,18 @@ function validateRuns(rawRuns) {
     });
     return mapped;
 }
-function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList) {
+function filterDeploymentsToApprove(runs, actorAllowList, octo, repo, environmentAllowList, runIdAllowList) {
     return __awaiter(this, void 0, void 0, function* () {
         trace.debug("Filtering the following workflow runs:", runs.map((run) => `#${run.id}: ${run.display_title}}`));
         const filteredDeployPromises = runs.map((run) => __awaiter(this, void 0, void 0, function* () {
             const actor = run.actor && run.actor.login;
-            if (!actorAllowList.includes(actor)) {
+            if (actorAllowList.length > 0 && !actorAllowList.includes(actor)) {
                 trace.warning("Run '%s (%s)' has a deployment pending approval but the actor '%s' is not allowed. Allowed actors are '%O' and are specified in the `actor_allow_list` input.", run.display_title, run.id, actor, actorAllowList);
+                return null;
+            }
+            if (runIdAllowList.length > 0 &&
+                !runIdAllowList.includes(run.id.toString())) {
+                trace.warning("Run '%s (%s)' has a deployment pending approval but the run ID '%s' is not allowed. Allowed run IDs are '%O' and are specified in the `run_id_allow_list` input.", run.display_title, run.id, run.id, runIdAllowList);
                 return null;
             }
             const deploys = yield octo.getPendingDeploymentsForRun(repo, run.id);
@@ -202,6 +207,7 @@ const core = __importStar(__nccwpck_require__(2186));
 exports.ActionInputNames = {
     environment_allow_list: "environment_allow_list",
     actor_allow_list: "actor_allow_list",
+    run_id_allow_list: "run_id_allow_list",
     github_token: "github_token",
 };
 /**
@@ -282,13 +288,19 @@ function run() {
         try {
             const environments_to_approve = (0, inputs_1.getMultilineInput)("environment_allow_list");
             core.info(`input environments_to_approve: ${(0, node_util_1.inspect)(environments_to_approve)}`);
-            const actors_to_approve = (0, inputs_1.getMultilineInput)("actor_allow_list");
+            const actors_to_approve = (0, inputs_1.getMultilineInput)("actor_allow_list", false);
             core.info(`input actors_to_approve: ${(0, node_util_1.inspect)(actors_to_approve)}`);
+            const run_ids_to_approve = (0, inputs_1.getMultilineInput)("run_id_allow_list", false);
+            core.info(`input run_ids_to_approve: ${(0, node_util_1.inspect)(run_ids_to_approve)}`);
+            // Check if at least one of the inputs is filled
+            if (actors_to_approve.length === 0 && run_ids_to_approve.length === 0) {
+                throw new Error("At least one of the inputs must be provided: actor_allow_list or run_id_allow_list");
+            }
             const github_token = (0, inputs_1.getStringInput)("github_token");
             const repo = github.context.repo;
             const octo = (0, octo_1.createOcto)(repo, github.getOctokit(github_token));
             if (!Reflect.has(process.env, "DEBUG_SKIP_ALL_REQUESTS")) {
-                yield (0, approver_1.findAndApproveDeployments)(octo, repo, actors_to_approve, environments_to_approve);
+                yield (0, approver_1.findAndApproveDeployments)(octo, repo, actors_to_approve, environments_to_approve, run_ids_to_approve);
             }
             else {
                 core.warning("Skipping all requests since DEBUG_SKIP_ALL_REQUESTS found");
