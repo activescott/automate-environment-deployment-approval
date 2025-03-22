@@ -15,17 +15,18 @@ import {
 /* eslint-disable no-magic-numbers,no-console */
 
 const TEST_CASES = [
-  [2, ActorsInTestData, EnvironmentsInTestData],
-  [0, ActorsInTestData, EnvironmentsNotInTestData],
-  [0, ActorsNotInTestData, EnvironmentsInTestData],
-  [0, ActorsNotInTestData, EnvironmentsNotInTestData],
+  [2, ActorsInTestData, EnvironmentsInTestData, []],
+  [0, ActorsInTestData, EnvironmentsNotInTestData, ["1234"]],
+  [0, ActorsNotInTestData, EnvironmentsInTestData, []],
+  [0, ActorsNotInTestData, EnvironmentsNotInTestData, ["1234"]],
 ]
 test.each(TEST_CASES)(
   "should approve %i deploys for actors '%s' and environments of '%s'",
   async (
     expectedApprovalCount: number | string[],
     actorAllowList: number | string[],
-    environmentAllowList: number | string[]
+    environmentAllowList: number | string[],
+    runIdAllowList: number | string[]
   ) => {
     const kitStub = createOctoKitStub()
     const octo: Octo = createOcto(TestRepo, kitStub)
@@ -41,7 +42,8 @@ test.each(TEST_CASES)(
       octoStub,
       TestRepo,
       actorAllowList as string[],
-      environmentAllowList as string[]
+      environmentAllowList as string[],
+      runIdAllowList as string[]
     )
     expect(octoStub.approveDeployment.callCount).toStrictEqual(
       expectedApprovalCount

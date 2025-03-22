@@ -12,8 +12,18 @@ async function run(): Promise<void> {
       `input environments_to_approve: ${inspect(environments_to_approve)}`
     )
 
-    const actors_to_approve = getMultilineInput("actor_allow_list")
+    const actors_to_approve = getMultilineInput("actor_allow_list", false)
     core.info(`input actors_to_approve: ${inspect(actors_to_approve)}`)
+
+    const run_ids_to_approve = getMultilineInput("run_id_allow_list", false)
+    core.info(`input run_ids_to_approve: ${inspect(run_ids_to_approve)}`)
+
+    // Check if at least one of the inputs is filled
+    if (actors_to_approve.length === 0 && run_ids_to_approve.length === 0) {
+      throw new Error(
+        "At least one of the inputs must be provided: actor_allow_list or run_id_allow_list"
+      )
+    }
 
     const github_token: string = getStringInput("github_token")
 
@@ -25,7 +35,8 @@ async function run(): Promise<void> {
         octo,
         repo,
         actors_to_approve,
-        environments_to_approve
+        environments_to_approve,
+        run_ids_to_approve
       )
     } else {
       core.warning("Skipping all requests since DEBUG_SKIP_ALL_REQUESTS found")
