@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set Node.js 16.x
         uses: actions/setup-node@v6.0.0
@@ -63,7 +63,7 @@ jobs:
     # This repo has an Environment named "Github" that has a "Required Reviewers" protection rule on it. This pauses this step until a required reviewer approves it
     environment: Github
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Use Node.js
         uses: actions/setup-node@v6.0.0
