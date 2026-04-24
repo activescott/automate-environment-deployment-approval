@@ -1,0 +1,94 @@
+on:
+  push:
+    branches:
+      - main
+      - beta
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 16.x
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit test
+        run: npm test
+
+      - name: Integration test
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          environment_allow_list: |
+            does-not-exist-one
+            does-not-exist-two
+          actor_allow_list: |
+            non-existing-actor
+          run_id_allow_list: |
+            non-existing-id
+
+      - name: Package dist
+        run: npm run package
+
+      - name: Update dist
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -n "$(git diff --name-only dist/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dist/
+            git commit -m "chore: rebuild dist/"
+            git push
+          fi
+
+      - name: Check dist
+        run: |
+          if [ -n "$(git diff --name-only dist/)" ]; then
+            echo "dist/ is out of date. Run 'npm run package' and commit the result."
+            git diff --stat dist/
+            exit 1
+          fi
+
+  publish:
+    if: github.event_name != 'pull_request'
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: write
+    environment: Github
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version: 16
+
+      - name: Publish Github Releases
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npm install
+          npx semantic-release@17
