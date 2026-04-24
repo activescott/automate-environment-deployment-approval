@@ -3,7 +3,7 @@ import { Octokit } from "@octokit/core"
 import WaitingWorkflowRunsJson from "../test-data/GET-repos-owner-repo-actions-runs.json"
 import PendingDeploymentsForRunTestData3927176162 from "../test-data/GET-repos-owner-repo-actions-runs-3927176162-pending_deployments.json"
 import PendingDeploymentsForRunTestData3616268941 from "../test-data/GET-repos-owner-repo-actions-runs-3616268941-pending_deployments.json"
-import { GetWorkflowRunsResponse, PendingDeploymentsResponse } from "./octo"
+import { GetWorkflowRunsResponse, PendingDeploymentsResponse } from "./octo.js"
 
 type OctokitStub = sinon.SinonStubbedInstance<InstanceType<typeof Octokit>>
 

@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
-import { findAndApproveDeployments } from "./approver"
-import { createOcto, Octo, Repo } from "./octo"
+import { findAndApproveDeployments } from "./approver.js"
+import { createOcto, Octo, Repo } from "./octo.js"
 import {
   createOctoKitStub,
   TestRepo,
@@ -10,7 +10,7 @@ import {
   ActorsNotInTestData,
   ActorsInTestData,
   EnvironmentsNotInTestData,
-} from "./testUtils"
+} from "./testUtils.js"
 
 /* eslint-disable no-magic-numbers,no-console */
 

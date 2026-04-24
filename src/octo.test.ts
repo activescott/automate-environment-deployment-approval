@@ -1,10 +1,10 @@
-import { createOcto, EnvironmentPartial } from "./octo"
-import { randomInteger } from "./numbers"
+import { createOcto, EnvironmentPartial } from "./octo.js"
+import { randomInteger } from "./numbers.js"
 import {
   createOctoKitStub,
   getWaitingWorkflowRunsResponseTestData,
   TestRepo,
-} from "./testUtils"
+} from "./testUtils.js"
 
 /* eslint-disable no-magic-numbers,no-console */
 

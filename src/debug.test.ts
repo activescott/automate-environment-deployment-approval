@@ -1,5 +1,5 @@
-import { findAndApproveDeployments } from "./approver"
-import { createOcto, Octo } from "./octo"
+import { findAndApproveDeployments } from "./approver.js"
+import { createOcto, Octo } from "./octo.js"
 import * as github from "@actions/github"
 
 /**

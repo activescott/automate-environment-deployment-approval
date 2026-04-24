@@ -8,7 +8,7 @@ import { Octokit } from "@octokit/core"
 import { components } from "@octokit/openapi-types"
 import { Endpoints, RequestParameters, Route } from "@octokit/types"
 import * as github from "@actions/github"
-import { ArrayElement } from "./utilityTypes"
+import { ArrayElement } from "./utilityTypes.js"
 
 export interface Octo {
   getWaitingWorkflowRuns(repo: Repo): Promise<GetWorkflowRunsResponse>
@@ -165,7 +165,8 @@ class OctoImpl implements Octo {
     route: keyof Endpoints | R,
     options?: Endpoints[R]["parameters"] & RequestParameters
   ): Promise<Endpoints[R]["response"]> {
-    const result = await this.octokit.request(route, options)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await this.octokit.request(route, options as any)
     const MAX_PARTS = 2
     const [method, fullPath] = route.split(" ", MAX_PARTS)
     const path = fullPath.startsWith("/repos/{owner}/{repo}/")

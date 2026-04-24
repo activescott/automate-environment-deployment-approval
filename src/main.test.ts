@@ -1,8 +1,11 @@
 import * as process from "process"
 import * as cp from "child_process"
 import * as path from "path"
-import { expect, test } from "@jest/globals"
-import { getEnvironmentNameForInput } from "./inputs"
+import { fileURLToPath } from "url"
+import { expect, test } from "vitest"
+import { getEnvironmentNameForInput } from "./inputs.js"
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /* eslint-disable no-magic-numbers,no-console */
 

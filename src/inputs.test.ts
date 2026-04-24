@@ -1,5 +1,5 @@
-import * as inputs from "./inputs"
-import { randomInteger } from "./numbers"
+import * as inputs from "./inputs.js"
+import { randomInteger } from "./numbers.js"
 
 describe("input", () => {
   afterEach(() => {

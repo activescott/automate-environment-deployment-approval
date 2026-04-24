@@ -1,9 +1,9 @@
 import * as core from "@actions/core"
 import * as github from "@actions/github"
 import { inspect } from "node:util"
-import { findAndApproveDeployments } from "./approver"
-import { getMultilineInput, getStringInput } from "./inputs"
-import { Octo, createOcto } from "./octo"
+import { findAndApproveDeployments } from "./approver.js"
+import { getMultilineInput, getStringInput } from "./inputs.js"
+import { Octo, createOcto } from "./octo.js"
 
 async function run(): Promise<void> {
   try {
