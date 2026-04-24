@@ -23,8 +23,8 @@ In order to Approve a protected environment as a required reviewer you must use 
 
 For _classic tokens_ it requires the "repo" scope. You'll need the following permissions if you're using a _fine-grained access token_:
 
-- **Actions: Read-only**:
-- **Deployments: Read-only**
+- **Actions: Read-only**
+- **Deployments: Read and write**
 
 For reference, below are the endpoints used and what permissions are needed are in Github's fine-grained tokens [here](https://docs.github.com/en/rest/overview/permissions-required-for-fine-grained-personal-access-tokens?apiVersion=2022-11-28#actions) reference.
 
