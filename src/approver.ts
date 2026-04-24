@@ -1,7 +1,7 @@
 import { inspect } from "node:util"
-import * as trace from "./trace"
+import * as trace from "./trace.js"
 import { setFailed } from "@actions/core"
-import { Octo, PartialWorkflowRun, WorkflowRun } from "./octo"
+import { Octo, PartialWorkflowRun, WorkflowRun } from "./octo.js"
 
 export async function findAndApproveDeployments(
   octo: Octo,
