@@ -21,5 +21,5 @@ inputs:
     description: A personal access token (PAT) from a 'required reviewer' and must have the 'repo' scope.
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
