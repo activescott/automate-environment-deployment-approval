@@ -8,6 +8,7 @@ Use this action to automatically approve workflow jobs that reference an environ
 
 - `environment_allow_list` specifies which environments to automatically approve deployments to.
 - `actor_allow_list` specifies which users/actors triggering a deployment that should be automatically approved.
+- `approval_comment` (optional) specifies the comment to add when approving a deployment. Defaults to `"approved by approve-dependabot-deploys script"`.
 
 An deployment must be both to an environment in the `environment_allow_list` AND from an actor in `actor_allow_list` or it will _not_ be automatically approved and instead will require manual review as described in [Github's Reviewing deployments](https://docs.github.com/en/actions/managing-workflow-runs/reviewing-deployments) help article.
 

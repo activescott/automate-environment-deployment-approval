@@ -8,7 +8,8 @@ export async function findAndApproveDeployments(
   repo: { owner: string; repo: string },
   actorAllowList: string[],
   environmentAllowList: string[],
-  runIdAllowList: string[]
+  runIdAllowList: string[],
+  approvalComment: string
 ): Promise<void> {
   trace.debug("Fetching runs for repo:", repo)
   const waitingRunsResponse = await octo.getWaitingWorkflowRuns(repo)
@@ -50,7 +51,12 @@ export async function findAndApproveDeployments(
         actor.login,
         run.display_title
       )
-      await octo.approveDeployment(repo, run, deploy.environment)
+      await octo.approveDeployment(
+        repo,
+        run,
+        deploy.environment,
+        approvalComment
+      )
       trace.notice(
         "Approved deployment to %s triggered by %s for run %s.",
         environment.name,

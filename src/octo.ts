@@ -19,7 +19,8 @@ export interface Octo {
   approveDeployment(
     repo: Repo,
     run: PartialWorkflowRun,
-    environment: EnvironmentPartial
+    environment: EnvironmentPartial,
+    comment: string
   ): Promise<
     Endpoints["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"]["response"]
   >
@@ -109,7 +110,8 @@ class OctoImpl implements Octo {
   public async approveDeployment(
     repo: Repo,
     run: PartialWorkflowRun,
-    environment: EnvironmentPartial
+    environment: EnvironmentPartial,
+    comment: string
   ): Promise<
     Endpoints["POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments"]["response"]
   > {
@@ -120,7 +122,7 @@ class OctoImpl implements Octo {
         run_id: run.id,
         environment_ids: [environment.id],
         state: "approved",
-        comment: "approved by approve-dependabot-deploys script",
+        comment,
       }
     )
     return resp

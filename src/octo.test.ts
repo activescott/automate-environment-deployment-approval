@@ -28,11 +28,13 @@ test("approveDeployment should call octokit", async () => {
     id: randomInteger(),
     name: "my-env",
   }
-  await octo.approveDeployment(TestRepo, testRun, testEnv)
+  const testComment = "my custom approval comment"
+  await octo.approveDeployment(TestRepo, testRun, testEnv, testComment)
   expect(kitStub.request.callCount).toEqual(1)
   const calledWithArgs = kitStub.request.args[0]
   const calledWithOptions = calledWithArgs[1]
   expect(calledWithOptions).toHaveProperty("run_id", testRun.id)
+  expect(calledWithOptions).toHaveProperty("comment", testComment)
 })
 
 test.todo("getPendingDeploymentsForRun should call kit")

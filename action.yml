@@ -19,6 +19,10 @@ inputs:
   github_token:
     required: true
     description: A personal access token (PAT) from a 'required reviewer' and must have the 'repo' scope.
+  approval_comment:
+    required: false
+    description: The comment to add when approving a deployment.
+    default: "approved by approve-dependabot-deploys script"
 
 runs:
   using: "node24"
