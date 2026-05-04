@@ -36720,7 +36720,8 @@ async function run() {
             throw new Error("At least one of the inputs must be provided: actor_allow_list or run_id_allow_list");
         }
         const github_token = getStringInput("github_token");
-        const approval_comment = getStringInput("approval_comment", false);
+        const approval_comment = getStringInput("approval_comment", false) ||
+            "approved by approve-dependabot-deploys script";
         const repo = github_context.repo;
         const octo = createOcto(repo, getOctokit(github_token));
         if (!Reflect.has(process.env, "DEBUG_SKIP_ALL_REQUESTS")) {

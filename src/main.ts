@@ -26,7 +26,9 @@ async function run(): Promise<void> {
     }
 
     const github_token: string = getStringInput("github_token")
-    const approval_comment: string = getStringInput("approval_comment", false)
+    const approval_comment: string =
+      getStringInput("approval_comment", false) ||
+      "approved by approve-dependabot-deploys script"
 
     const repo = github.context.repo
     const octo: Octo = createOcto(repo, github.getOctokit(github_token))
