@@ -26,6 +26,9 @@ async function run(): Promise<void> {
     }
 
     const github_token: string = getStringInput("github_token")
+    const approval_comment: string =
+      getStringInput("approval_comment", false) ||
+      "approved by approve-dependabot-deploys script"
 
     const repo = github.context.repo
     const octo: Octo = createOcto(repo, github.getOctokit(github_token))
@@ -36,7 +39,8 @@ async function run(): Promise<void> {
         repo,
         actors_to_approve,
         environments_to_approve,
-        run_ids_to_approve
+        run_ids_to_approve,
+        approval_comment
       )
     } else {
       core.warning("Skipping all requests since DEBUG_SKIP_ALL_REQUESTS found")

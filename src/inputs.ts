@@ -5,6 +5,7 @@ export const ActionInputNames = {
   actor_allow_list: "actor_allow_list",
   run_id_allow_list: "run_id_allow_list",
   github_token: "github_token",
+  approval_comment: "approval_comment",
 }
 
 /**

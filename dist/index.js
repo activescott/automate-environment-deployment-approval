@@ -36484,7 +36484,7 @@ function warning(message, ...args) {
 
 
 
-async function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList, runIdAllowList) {
+async function findAndApproveDeployments(octo, repo, actorAllowList, environmentAllowList, runIdAllowList, approvalComment) {
     debug("Fetching runs for repo:", repo);
     const waitingRunsResponse = await octo.getWaitingWorkflowRuns(repo);
     debug("Found %s waiting runs as follows: ", waitingRunsResponse.data.total_count, waitingRunsResponse.data.workflow_runs.map((run) => run.display_title));
@@ -36504,7 +36504,7 @@ async function findAndApproveDeployments(octo, repo, actorAllowList, environment
         const environment = deploy.environment;
         try {
             info("Approving deployment to %s triggered by %s for run %s...", environment.name, actor.login, run.display_title);
-            await octo.approveDeployment(repo, run, deploy.environment);
+            await octo.approveDeployment(repo, run, deploy.environment, approvalComment);
             notice("Approved deployment to %s triggered by %s for run %s.", environment.name, actor.login, run.display_title);
         }
         catch (err) {
@@ -36591,6 +36591,7 @@ const ActionInputNames = {
     actor_allow_list: "actor_allow_list",
     run_id_allow_list: "run_id_allow_list",
     github_token: "github_token",
+    approval_comment: "approval_comment",
 };
 /**
  * Returns the environment variable name to use for the given input
@@ -36649,13 +36650,13 @@ class OctoImpl {
         });
         return deploys;
     }
-    async approveDeployment(repo, run, environment) {
+    async approveDeployment(repo, run, environment, comment) {
         const resp = await this.doRequest("POST /repos/{owner}/{repo}/actions/runs/{run_id}/pending_deployments", {
             ...repo,
             run_id: run.id,
             environment_ids: [environment.id],
             state: "approved",
-            comment: "approved by approve-dependabot-deploys script",
+            comment,
         });
         return resp;
     }
@@ -36719,10 +36720,12 @@ async function run() {
             throw new Error("At least one of the inputs must be provided: actor_allow_list or run_id_allow_list");
         }
         const github_token = getStringInput("github_token");
+        const approval_comment = getStringInput("approval_comment", false) ||
+            "approved by approve-dependabot-deploys script";
         const repo = github_context.repo;
         const octo = createOcto(repo, getOctokit(github_token));
         if (!Reflect.has(process.env, "DEBUG_SKIP_ALL_REQUESTS")) {
-            await findAndApproveDeployments(octo, repo, actors_to_approve, environments_to_approve, run_ids_to_approve);
+            await findAndApproveDeployments(octo, repo, actors_to_approve, environments_to_approve, run_ids_to_approve, approval_comment);
         }
         else {
             core.warning("Skipping all requests since DEBUG_SKIP_ALL_REQUESTS found");
