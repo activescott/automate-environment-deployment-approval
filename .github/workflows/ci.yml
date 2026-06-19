@@ -13,7 +13,7 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.head_ref || github.ref }}
           token: ${{ secrets.CI_PUSH_TOKEN || github.token }}
@@ -77,7 +77,7 @@ jobs:
       contents: write
     environment: Github
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6.4.0
         with:
