@@ -37,7 +37,7 @@
     "@octokit/core": "^7.0.7"
   },
   "devDependencies": {
-    "@activescott/eslint-config": "^2.3.6",
+    "@activescott/eslint-config": "^3.0.0",
     "@activescott/watch": "^1.0.1",
     "@octokit/types": "^16.0.0",
     "@types/node": "^24.0.0",
